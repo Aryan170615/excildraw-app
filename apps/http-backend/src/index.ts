@@ -7,7 +7,6 @@ import { CreateRoomSchema, CreateUserSchema, SigninSchema } from "@repo/common/i
 
 app.use(express.json())
 
-
 app.post('/signup',(req,res)=> {
     const data = CreateUserSchema.safeParse(req.body);
     if(!data.success){
