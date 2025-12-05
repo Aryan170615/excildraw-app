@@ -3,12 +3,20 @@ const app = express();
 import jwt from 'jsonwebtoken'
 import { middleware } from "./middleware";
 import { JWT_SECRET } from "@repo/backend-common";
+import { CreateRoomSchema, CreateUserSchema, SigninSchema } from "@repo/common/index";
 
 app.use(express.json())
 
 
 app.post('/signup',(req,res)=> {
-    const {email, name , password} = req.body
+    const data = CreateUserSchema.safeParse(req.body);
+    if(!data.success){
+        res.json({
+            message : "incorrect inputs"
+        })
+        return
+    }
+    // const {email, name , password} = req.body
 
     // database call to create a user and return user id
 
@@ -19,6 +27,13 @@ app.post('/signup',(req,res)=> {
 
 app.post('/signin',(req,res)=> {
 
+    const data = SigninSchema.safeParse(req.body);
+    if(!data.success){
+        res.json({
+            message : "incorrect inputs"
+        })
+        return
+    }
     //check if user is present in db if not return early
     const userId = 1
     const token = jwt.sign({
@@ -31,6 +46,13 @@ app.post('/signin',(req,res)=> {
 })
 
 app.post('/create-room', middleware, (req,res)=>{
+    const data = CreateRoomSchema.safeParse(req.body);
+    if(!data.success){
+        res.json({
+            message : "incorrect inputs"
+        })
+        return
+    }
     // @ts-ignore
     const id = req.userId
     res.json({
