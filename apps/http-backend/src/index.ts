@@ -2,10 +2,10 @@ import express from "express";
 const app = express();
 import jwt from 'jsonwebtoken'
 import { middleware } from "./middleware";
+import { JWT_SECRET } from "@repo/backend-common";
 
 app.use(express.json())
 
-const JWT_SECRET = "ILOVEADOBE"
 
 app.post('/signup',(req,res)=> {
     const {email, name , password} = req.body
