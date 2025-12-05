@@ -7,12 +7,6 @@ app.use(express.json())
 
 const JWT_SECRET = "ILOVEADOBE"
 
-app.get('/',(req,res)=> {
-    res.json({
-        message: "Hello from aryan"
-    })
-})
-
 app.post('/signup',(req,res)=> {
     const {email, name , password} = req.body
 

@@ -4,7 +4,7 @@ const JWT_SECRET = "ILOVEADOBE"
 
 export function middleware(req: Request, res: Response, next: NextFunction) {
     // @ts-ignore 
-   const token = req.headers.authorization || "";
+   const token: string = req.headers.authorization;
    if(token == ""){
     res.status(403).json({
         message : "unauthorized and token missing"
