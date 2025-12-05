@@ -1,6 +1,6 @@
 import { WebSocketServer } from "ws";
 import jwt, { JwtPayload } from "jsonwebtoken";
-const JWT_SECRET = "ILOVEADOBE"
+import { JWT_SECRET } from "@repo/backend-common";
 
 const wss = new WebSocketServer({ port: 8080 });
 
@@ -22,9 +22,12 @@ wss.on('connection', function connection(ws, request) {
      // Authenticate the token using jwt verification
 
      
-     const decoded = jwt.verify(token,JWT_SECRET)
+     const decoded = jwt.verify(token, JWT_SECRET)
 
-     if(typeof decoded === "string") return
+     if(typeof decoded === "string") {
+        ws.close()
+        return
+     }
 
      if (!decoded || !decoded.userId) {
         console.log('Client connected with valid token');
