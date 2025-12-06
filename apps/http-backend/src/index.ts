@@ -33,22 +33,33 @@ app.post('/signup', async(req,res)=> {
     })} 
     catch(e){
         res.status(403).json({
-            message : "emai; already exists"
+            message : "email already exists"
         })
     }
 })
 
-app.post('/signin',(req,res)=> {
-
-    const data = SigninSchema.safeParse(req.body);
-    if(!data.success){
+app.post('/signin',async (req,res)=> {
+    const parsedData = SigninSchema.safeParse(req.body);
+    if(!parsedData.success){
         res.json({
             message : "incorrect inputs"
         })
         return
     }
     //check if user is present in db if not return early
-    const userId = 1
+    const user = await prismaClient.user.findFirst({
+        where: {
+            email : parsedData.data.email,
+            password : parsedData.data.password,
+        }
+    })
+    if(!user) {
+        res.json({
+            message: "user not exists with this email pls signup"
+        })
+        return
+    }
+    const userId = user.id
     const token = jwt.sign({
         userId: userId
     }, JWT_SECRET)
@@ -58,19 +69,33 @@ app.post('/signin',(req,res)=> {
     })
 })
 
-app.post('/create-room', middleware, (req,res)=>{
-    const data = CreateRoomSchema.safeParse(req.body);
-    if(!data.success){
+app.post('/create-room', middleware, async (req,res)=>{
+    const parsedData = CreateRoomSchema.safeParse(req.body);
+    if(!parsedData.success){
         res.json({
             message : "incorrect inputs"
         })
         return
     }
     // @ts-ignore
-    const id = req.userId
-    res.json({
-      message : `room created by ${id}`  
+    const adminId = req.userId
+    try{
+    const room = await prismaClient.room.create({
+        data: {
+            slug: parsedData.data.name,
+            adminId
+        }
     })
+    // @ts-ignore
+    const id = room.id
+    res.json({
+      roomId : `${id}`  
+    })
+   } catch(e){
+    res.status(411).json({
+        message : "room already exists with this name"
+    })
+   }
 })
 
 
