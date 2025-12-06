@@ -5,11 +5,13 @@ import { middleware } from "./middleware";
 import { JWT_SECRET } from "@repo/backend-common";
 import { CreateRoomSchema, CreateUserSchema, SigninSchema } from "@repo/common/index";
 
+import prismaClient from "@repo/db/src/prisma"
+
 app.use(express.json())
 
-app.post('/signup',(req,res)=> {
-    const data = CreateUserSchema.safeParse(req.body);
-    if(!data.success){
+app.post('/signup', async(req,res)=> {
+    const parsedData = CreateUserSchema.safeParse(req.body);
+    if(!parsedData.success){
         res.json({
             message : "incorrect inputs"
         })
@@ -18,10 +20,22 @@ app.post('/signup',(req,res)=> {
     // const {email, name , password} = req.body
 
     // database call to create a user and return user id
-
-    res.json({
-        message : "signup successful and here is the userId"
+   try{
+    const user = await prismaClient.user.create({
+        data: {
+            email: parsedData.data.email,
+            password: parsedData.data.password,
+            name: parsedData.data.name,
+        }
     })
+    res.json({
+        message : `signup successful and here is the ${user.id}`
+    })} 
+    catch(e){
+        res.status(403).json({
+            message : "emai; already exists"
+        })
+    }
 })
 
 app.post('/signin',(req,res)=> {
